@@ -55,6 +55,7 @@ class Wn90lpSensor(CoordinatorEntity[Wn90lpModbusCoordinator], SensorEntity):
         self._attr_native_unit_of_measurement = description.unit
         self._attr_device_class = description.device_class
         self._attr_state_class = description.state_class
+        self._attr_entity_registry_enabled_default = description.enabled_by_default
         if description.icon:
             self._attr_icon = description.icon
         self._attr_device_info = device_info
