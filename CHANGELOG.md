@@ -5,9 +5,12 @@ follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH,
 where MINOR adds backward-compatible functionality and PATCH is a
 fix with no new functionality.
 
-## [Unreleased]
+## [0.6.0] - 2026-09-02
 
-- Calculated Dew Point and Wind Chill sensors (#10)
+### Added
+
+- Calculated Dew Point and Wind Chill sensors, derived client-side
+  from temperature/humidity/wind speed - no extra Modbus reads (#12)
 
 ## [0.5.0] - 2026-09-02
 
@@ -83,7 +86,7 @@ fix with no new functionality.
 - Invalid readings (`0xFFFF`) reported as `unavailable` instead of a
   bogus value
 
-[Unreleased]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.5.0...HEAD
+[0.6.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/releases/tag/v0.6.0
 [0.5.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.2.3...v0.3.0
