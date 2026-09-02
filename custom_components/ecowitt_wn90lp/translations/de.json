@@ -20,5 +20,16 @@
     "abort": {
       "already_configured": "Dieses Ger\u00e4t ist bereits konfiguriert."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ecowitt WN90LP Optionen",
+        "description": "Abfrageh\u00e4ufigkeit des Ger\u00e4ts anpassen.",
+        "data": {
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    }
   }
 }
