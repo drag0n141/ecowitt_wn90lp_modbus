@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from .const import CONF_UNIT_ID, DEFAULT_SCAN_INTERVAL, DOMAIN
 from .coordinator import Wn90lpModbusCoordinator
 
-PLATFORMS: list[Platform] = [Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
