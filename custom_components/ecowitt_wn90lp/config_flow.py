@@ -121,6 +121,51 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
 
+    async def async_step_reconfigure(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Let the user change host/port/unit-id/scan-interval in place.
+
+        Unlike the options flow (scan interval only), this covers every
+        field from the initial setup - useful if the gateway's IP changed,
+        or the device's unit/slave ID was reassigned on the Modbus bus.
+        """
+        errors: dict[str, str] = {}
+        reconfigure_entry = self._get_reconfigure_entry()
+
+        if user_input is not None:
+            try:
+                await _async_validate_connection(
+                    user_input[CONF_HOST],
+                    user_input[CONF_PORT],
+                    user_input[CONF_UNIT_ID],
+                )
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Unexpected exception during WN90LP reconfigure")
+                errors["base"] = "unknown"
+            else:
+                unique_id = (
+                    f"{user_input[CONF_HOST]}:{user_input[CONF_PORT]}:"
+                    f"{user_input[CONF_UNIT_ID]}"
+                )
+                await self.async_set_unique_id(unique_id)
+                # If the recomputed unique_id still belongs to *this* entry,
+                # this updates its data and reloads it, then aborts the flow
+                # with "reconfigure_successful". If it now collides with a
+                # *different* entry, it aborts with "already_configured"
+                # instead - both are exactly what we want here.
+                self._abort_if_unique_id_configured(updates=user_input)
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self.add_suggested_values_to_schema(
+                STEP_USER_DATA_SCHEMA, reconfigure_entry.data
+            ),
+            errors=errors,
+        )
+
     @staticmethod
     @callback
     def async_get_options_flow(
@@ -137,7 +182,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
     WN90LP returns all of its registers in one contiguous block read, so
     unlike integrations that poll many registers at different priorities
     (fast-changing vs. slow-changing), a single interval is sufficient
-    here.
+    here. For changing host/port/unit-id, use "Reconfigure" instead.
     """
 
     async def async_step_init(
