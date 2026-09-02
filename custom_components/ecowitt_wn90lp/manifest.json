@@ -1,0 +1,11 @@
+{
+  "domain": "ecowitt_wn90lp",
+  "name": "Ecowitt WN90LP (Modbus)",
+  "codeowners": ["@drag0n141"],
+  "config_flow": true,
+  "documentation": "https://github.com/drag0n141/ecowitt_wn90lp_modbus",
+  "issue_tracker": "https://github.com/drag0n141/ecowitt_wn90lp_modbus/issues",
+  "iot_class": "local_polling",
+  "requirements": ["pymodbus>=3.6.0"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ecowitt WN90LP (Modbus)",
+        "description": "Verbindung zur WN90LP \u00fcber ein Modbus RTU-zu-TCP-Gateway.",
+        "data": {
+          "name": "Name",
+          "host": "Gateway Host/IP",
+          "port": "Gateway Port",
+          "unit_id": "Modbus Unit-/Slave-ID",
+          "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum Modbus-Gateway/-Ger\u00e4t fehlgeschlagen.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "already_configured": "Dieses Ger\u00e4t ist bereits konfiguriert."
+    }
+  }
+}
