@@ -20,5 +20,16 @@
     "abort": {
       "already_configured": "This device is already configured."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ecowitt WN90LP options",
+        "description": "Adjust how often the device is polled.",
+        "data": {
+          "scan_interval": "Scan interval (seconds)"
+        }
+      }
+    }
   }
 }
