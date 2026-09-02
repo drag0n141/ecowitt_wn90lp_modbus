@@ -11,6 +11,17 @@
           "unit_id": "Modbus unit/slave ID",
           "scan_interval": "Scan interval (seconds)"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Ecowitt WN90LP",
+        "description": "Update the gateway/device connection details.",
+        "data": {
+          "name": "Name",
+          "host": "Gateway host/IP",
+          "port": "Gateway port",
+          "unit_id": "Modbus unit/slave ID",
+          "scan_interval": "Scan interval (seconds)"
+        }
       }
     },
     "error": {
@@ -18,7 +29,8 @@
       "unknown": "Unexpected error."
     },
     "abort": {
-      "already_configured": "This device is already configured."
+      "already_configured": "This device is already configured.",
+      "reconfigure_successful": "Reconfiguration was successful."
     }
   },
   "options": {
