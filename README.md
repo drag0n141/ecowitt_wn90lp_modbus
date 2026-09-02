@@ -20,11 +20,12 @@ Elfin EW11, USR, etc.) — no cloud, no console, fully local.
 
 ### Via HACS
 
-1. HACS → Integrations → ⋮ → Custom repositories
-2. Add `https://github.com/drag0n141/ecowitt_wn90lp_modbus` as category
-   **Integration**
-3. Install "Ecowitt WN90LP (Modbus)"
-4. Restart Home Assistant
+1. Add this repository to HACS **Integrations → Custom repositories**
+   [![Add repository to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=drag0n141&repository=ecowitt_wn90lp_modbus&category=integration)
+2. Install the "Ecowitt WN90LP (Modbus)" integration
+3. Restart Home Assistant
+4. Add the integration via **Settings → Devices & Services**
+   [![Open your Home Assistant instance and show the integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=ecowitt_wn90lp)
 
 ### Manual
 
