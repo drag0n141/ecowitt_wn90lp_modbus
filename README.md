@@ -98,12 +98,6 @@ no extra Modbus reads involved:
 Default Modbus parameters: **9600 baud, 8 data bits, no parity, 1 stop
 bit**, slave address `0x90`.
 
-## Credits
-
-Register map and scaling reverse-engineered from the official
-[Ecowitt "WN90LP ModbusRTU" specification (V1.0.5, PDF)](https://oss.ecowitt.net/uploads/20241004/WN90LP%20ModbusRTU_V1.0.5_En.pdf).
-Not affiliated with Ecowitt or Fine Offset.
-
 ## License
 
 MIT
