@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import math
 from datetime import timedelta
 from typing import Any
 
@@ -19,6 +20,41 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def _calculate_dew_point(temperature_c: float, humidity_pct: float) -> float:
+    """Dew point via the Magnus-Tetens approximation.
+
+    Standard meteorological formula; accurate to within about 0.1-0.2 C
+    for the temperature/humidity ranges this sensor operates in.
+    """
+    a, b = 17.27, 237.7
+    alpha = ((a * temperature_c) / (b + temperature_c)) + math.log(
+        humidity_pct / 100.0
+    )
+    return (b * alpha) / (a - alpha)
+
+
+def _calculate_wind_chill(temperature_c: float, wind_speed_ms: float) -> float:
+    """Wind chill via the North American/JAG-TI 2001 formula.
+
+    Only meteorologically valid for temperature <= 10 C and wind speed
+    >= 4.8 km/h. Outside that range, most weather services just show the
+    actual air temperature as the "feels like" value instead of applying
+    the formula (which produces nonsensical results out of range) - this
+    does the same.
+    """
+    wind_kmh = wind_speed_ms * 3.6
+
+    if temperature_c > 10 or wind_kmh < 4.8:
+        return temperature_c
+
+    return (
+        13.12
+        + 0.6215 * temperature_c
+        - 11.37 * wind_kmh**0.16
+        + 0.3965 * temperature_c * wind_kmh**0.16
+    )
 
 
 class Wn90lpModbusCoordinator(DataUpdateCoordinator[dict[str, float | None]]):
@@ -82,6 +118,11 @@ class Wn90lpModbusCoordinator(DataUpdateCoordinator[dict[str, float | None]]):
         data: dict[str, float | None] = {}
 
         for description in SENSOR_DESCRIPTIONS:
+            if description.register_index is None:
+                # Calculated sensor - filled in below once every raw
+                # register has been read and scaled.
+                continue
+
             raw = raw_registers[description.register_index]
 
             if raw == INVALID_VALUE:
@@ -94,7 +135,28 @@ class Wn90lpModbusCoordinator(DataUpdateCoordinator[dict[str, float | None]]):
             value = raw * description.scale + description.offset
             data[description.key] = round(value, 2)
 
+        self._add_calculated_sensors(data)
+
         return data
+
+    @staticmethod
+    def _add_calculated_sensors(data: dict[str, float | None]) -> None:
+        """Derive dew point / wind chill from the already-read values."""
+        temperature = data.get("temperature")
+        humidity = data.get("humidity")
+        wind_speed = data.get("wind_speed")
+
+        data["dew_point"] = (
+            round(_calculate_dew_point(temperature, humidity), 1)
+            if temperature is not None and humidity is not None and humidity > 0
+            else None
+        )
+
+        data["wind_chill"] = (
+            round(_calculate_wind_chill(temperature, wind_speed), 1)
+            if temperature is not None and wind_speed is not None
+            else None
+        )
 
     async def async_shutdown_client(self) -> None:
         """Close the Modbus client connection on unload."""
