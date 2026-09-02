@@ -28,10 +28,12 @@ MODEL: Final = "WN90LP"
 # --- Modbus register layout --------------------------------------------
 # Source: Ecowitt "WN90LP ModbusRTU" specification (V1.0.5), section 1.3.
 # A single Read Holding Registers request (function 0x03) starting at
-# register 0x0165 for 9 registers returns all fields below in one shot.
-#   0x90 0x03 0x01 0x65 0x00 0x09 ...
+# register 0x0165 for 10 registers returns all fields below in one shot -
+# the main weather block (0x0165-0x016D) plus the finer-resolution rain
+# counter at 0x016E, which sits directly adjacent to it:
+#   0x90 0x03 0x01 0x65 0x00 0x0A ...
 START_REGISTER: Final = 0x0165
-REGISTER_COUNT: Final = 9
+REGISTER_COUNT: Final = 10
 
 # Sentinel value the sensor reports when a measurement is invalid/unavailable.
 INVALID_VALUE: Final = 0xFFFF
@@ -54,6 +56,7 @@ class Wn90lpSensorDescription:
     state_class: str | None = None
     icon: str | None = None
     signed: bool = False
+    enabled_by_default: bool = True
 
 
 # Register order exactly as returned by the WN90LP for a single block read
@@ -141,5 +144,19 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         unit=UnitOfPressure.HPA,
         device_class="pressure",
         state_class="measurement",
+    ),
+    Wn90lpSensorDescription(
+        key="rain_counter",
+        name="Rain Counter (0.01 mm)",
+        register_index=9,  # 0x016E - finer-resolution rain counter
+        scale=0.01,
+        unit=UnitOfLength.MILLIMETERS,
+        device_class="precipitation",
+        state_class="total_increasing",
+        icon="mdi:weather-pouring",
+        # The spec itself recommends 0x016C ("rainfall" above) for most
+        # cases; this is the finer-grained alternative, off by default so
+        # it doesn't clutter the entity list for people who don't need it.
+        enabled_by_default=False,
     ),
 )
