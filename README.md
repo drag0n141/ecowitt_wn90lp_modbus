@@ -65,6 +65,16 @@ A raw value of `0xFFFF` means "invalid/no reading" — the integration
 reports the corresponding sensor as `unavailable` in that case instead of
 a bogus number.
 
+### Calculated sensors
+
+Two additional sensors are computed client-side from the values above -
+no extra Modbus reads involved:
+
+| Sensor      | Formula                                    | Notes |
+| ----------- | ------------------------------------------- | ----- |
+| Dew Point   | Magnus-Tetens approximation from temperature + humidity | `null` if humidity is 0% |
+| Wind Chill  | North American/JAG-TI 2001 formula from temperature + wind speed | Only meteorologically valid for temperature ≤ 10 °C and wind ≥ 4.8 km/h; outside that range this just returns the air temperature unchanged (same convention most weather services use for "feels like") |
+
 ### Notes from the spec
 
 - `0x0165`–`0x0168`, `0x016C` and `0x016E` update roughly every 8.75 s;

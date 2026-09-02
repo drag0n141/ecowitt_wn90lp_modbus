@@ -44,11 +44,17 @@ UV_INDEX: Final = "UV index"
 
 @dataclass(frozen=True, kw_only=True)
 class Wn90lpSensorDescription:
-    """Describes a single Modbus register exposed as a sensor."""
+    """Describes a sensor exposed by this integration.
+
+    Most sensors map directly to a Modbus register (`register_index` set,
+    offset from START_REGISTER). A few are purely calculated from other
+    already-read values (`register_index=None`) - see
+    `coordinator._async_update_data` for where those are computed.
+    """
 
     key: str
     name: str
-    register_index: int  # offset from START_REGISTER, 0-based
+    register_index: int | None = None  # offset from START_REGISTER, 0-based
     scale: float = 1.0
     offset: float = 0.0
     unit: str | None = None
@@ -60,7 +66,9 @@ class Wn90lpSensorDescription:
 
 
 # Register order exactly as returned by the WN90LP for a single block read
-# starting at 0x0165 (see spec examples 1 & 2).
+# starting at 0x0165 (see spec examples 1 & 2), followed by sensors that
+# are calculated client-side from those same values (no extra register
+# reads involved).
 SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
     Wn90lpSensorDescription(
         key="light",
@@ -158,5 +166,22 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         # cases; this is the finer-grained alternative, off by default so
         # it doesn't clutter the entity list for people who don't need it.
         enabled_by_default=False,
+    ),
+    # --- Calculated sensors (no dedicated register) --------------------
+    Wn90lpSensorDescription(
+        key="dew_point",
+        name="Dew Point",
+        unit=UnitOfTemperature.CELSIUS,
+        device_class="temperature",
+        state_class="measurement",
+        icon="mdi:thermometer-water",
+    ),
+    Wn90lpSensorDescription(
+        key="wind_chill",
+        name="Wind Chill",
+        unit=UnitOfTemperature.CELSIUS,
+        device_class="temperature",
+        state_class="measurement",
+        icon="mdi:snowflake-thermometer",
     ),
 )
