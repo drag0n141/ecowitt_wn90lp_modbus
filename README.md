@@ -45,20 +45,21 @@ Settings → Devices & Services → Add Integration → **Ecowitt WN90LP
 ## Sensors
 
 All registers are read in a single Modbus request (function `0x03`,
-starting at register `0x0165`, 9 registers), per the official
+starting at register `0x0165`, 10 registers), per the official
 [Ecowitt WN90LP Modbus RTU specification (V1.0.5, PDF)](https://oss.ecowitt.net/uploads/20241004/WN90LP%20ModbusRTU_V1.0.5_En.pdf).
 
-| Sensor            | Register | Raw → Value                       | Unit  |
-| ------------------ | -------- | ----------------------------------- | ----- |
-| Light               | `0x0165` | `raw * 10`                          | lx    |
-| UV Index            | `0x0166` | `raw * 0.1`                         | —     |
-| Temperature         | `0x0167` | `raw * 0.1 - 40`                    | °C    |
-| Humidity            | `0x0168` | `raw`                                | %     |
-| Wind Speed          | `0x0169` | `raw * 0.1`                         | m/s   |
-| Gust Speed          | `0x016A` | `raw * 0.1`                         | m/s   |
-| Wind Direction      | `0x016B` | `raw`                                | °     |
-| Rainfall            | `0x016C` | `raw * 0.1` (0.1 mm resolution counter) | mm    |
-| Absolute Pressure   | `0x016D` | `raw * 0.1`                         | hPa   |
+| Sensor            | Register | Raw → Value                       | Unit  | Enabled by default |
+| ------------------ | -------- | ----------------------------------- | ----- | ------------------- |
+| Light               | `0x0165` | `raw * 10`                          | lx    | Yes |
+| UV Index            | `0x0166` | `raw * 0.1`                         | —     | Yes |
+| Temperature         | `0x0167` | `raw * 0.1 - 40`                    | °C    | Yes |
+| Humidity            | `0x0168` | `raw`                                | %     | Yes |
+| Wind Speed          | `0x0169` | `raw * 0.1`                         | m/s   | Yes |
+| Gust Speed          | `0x016A` | `raw * 0.1`                         | m/s   | Yes |
+| Wind Direction      | `0x016B` | `raw`                                | °     | Yes |
+| Rainfall            | `0x016C` | `raw * 0.1` (0.1 mm resolution counter) | mm    | Yes |
+| Absolute Pressure   | `0x016D` | `raw * 0.1`                         | hPa   | Yes |
+| Rain Counter (fine) | `0x016E` | `raw * 0.01` (0.01 mm resolution counter) | mm    | No |
 
 A raw value of `0xFFFF` means "invalid/no reading" — the integration
 reports the corresponding sensor as `unavailable` in that case instead of
@@ -76,12 +77,14 @@ no extra Modbus reads involved:
 
 ### Notes from the spec
 
-- `0x0165`–`0x0168` and `0x016C` update roughly every 8.75 s; the wind
-  registers (`0x0169`–`0x016B`) update roughly every 2 s. A 10–30 s scan
-  interval is a reasonable default.
-- `0x016C` (rainfall, 0.1 mm resolution) is the recommended rain counter
-  register per Ecowitt's own documentation — this integration uses it
-  rather than the alternate 0.01 mm register (`0x016E`).
+- `0x0165`–`0x0168`, `0x016C` and `0x016E` update roughly every 8.75 s;
+  the wind registers (`0x0169`–`0x016B`) update roughly every 2 s. A
+  10–30 s scan interval is a reasonable default.
+- The spec explicitly recommends `0x016C` (0.1 mm resolution) as the rain
+  counter register for most cases. `0x016E` is the finer-grained 0.01 mm
+  alternative — both are read in the same block request, but `0x016E` is
+  disabled by default in the entity registry to avoid cluttering the
+  entity list; enable it manually if you want the extra precision.
 
 ## Wiring reference
 
