@@ -9,6 +9,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers import selector
 
 from .const import (
     CONF_UNIT_ID,
@@ -21,17 +22,42 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
+# NOTE: a plain `vol.All(vol.Coerce(int), vol.Range(min=..., max=...))` gets
+# rendered by the HA frontend as a *slider* for small ranges, which is
+# unusable for something like a Modbus unit/slave ID (you want to type the
+# exact number, not drag a handle). Using an explicit NumberSelector with
+# mode=BOX forces a plain numeric text field instead.
+_UNIT_ID_SELECTOR = vol.All(
+    selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=1, max=255, step=1, mode=selector.NumberSelectorMode.BOX
+        )
+    ),
+    vol.Coerce(int),
+)
+
+_SCAN_INTERVAL_SELECTOR = vol.All(
+    selector.NumberSelector(
+        selector.NumberSelectorConfig(
+            min=5,
+            max=3600,
+            step=1,
+            mode=selector.NumberSelectorMode.BOX,
+            unit_of_measurement="s",
+        )
+    ),
+    vol.Coerce(int),
+)
+
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): vol.Coerce(int),
-        vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): vol.All(
-            vol.Coerce(int), vol.Range(min=1, max=255)
-        ),
-        vol.Optional(CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): vol.All(
-            vol.Coerce(int), vol.Range(min=5, max=3600)
-        ),
+        vol.Required(CONF_UNIT_ID, default=DEFAULT_UNIT_ID): _UNIT_ID_SELECTOR,
+        vol.Optional(
+            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
+        ): _SCAN_INTERVAL_SELECTOR,
     }
 )
 
@@ -129,7 +155,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_SCAN_INTERVAL, default=current_scan_interval
-                ): vol.All(vol.Coerce(int), vol.Range(min=5, max=3600)),
+                ): _SCAN_INTERVAL_SELECTOR,
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)
