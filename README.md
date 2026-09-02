@@ -46,7 +46,7 @@ Settings → Devices & Services → Add Integration → **Ecowitt WN90LP
 
 All registers are read in a single Modbus request (function `0x03`,
 starting at register `0x0165`, 9 registers), per the official
-[Ecowitt WN90LP Modbus RTU specification](https://www.ecowitt.com/).
+[Ecowitt WN90LP Modbus RTU specification (V1.0.5, PDF)](https://oss.ecowitt.net/uploads/20241004/WN90LP%20ModbusRTU_V1.0.5_En.pdf).
 
 | Sensor            | Register | Raw → Value                       | Unit  |
 | ------------------ | -------- | ----------------------------------- | ----- |
@@ -94,9 +94,9 @@ bit**, slave address `0x90`.
 
 ## Credits
 
-Register map and scaling reverse-engineered from the official Ecowitt
-"WN90LP ModbusRTU" specification (V1.0.5). Not affiliated with Ecowitt
-or Fine Offset.
+Register map and scaling reverse-engineered from the official
+[Ecowitt "WN90LP ModbusRTU" specification (V1.0.5, PDF)](https://oss.ecowitt.net/uploads/20241004/WN90LP%20ModbusRTU_V1.0.5_En.pdf).
+Not affiliated with Ecowitt or Fine Offset.
 
 ## License
 
