@@ -98,13 +98,6 @@ no extra Modbus reads involved:
 Default Modbus parameters: **9600 baud, 8 data bits, no parity, 1 stop
 bit**, slave address `0x90`.
 
-## Not implemented (yet)
-
-- The `0x9C92`–`0x9C9A` "start a measurement" command registers
-  (higher-frequency single-shot readings)
-- Changing baud rate / device address from within Home Assistant (use
-  Ecowitt's own PC tool for that)
-
 ## Credits
 
 Register map and scaling reverse-engineered from the official
