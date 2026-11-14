@@ -106,7 +106,7 @@ class Wn90lpModbusCoordinator(DataUpdateCoordinator[dict[str, float | None]]):
             result = await client.read_holding_registers(
                 address=START_REGISTER,
                 count=REGISTER_COUNT,
-                slave=self._unit_id,
+                device_id=self._unit_id,
             )
         except Exception as err:  # noqa: BLE001 - surface any transport error
             raise UpdateFailed(f"Modbus read failed: {err}") from err

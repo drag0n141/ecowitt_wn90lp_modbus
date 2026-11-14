@@ -75,7 +75,7 @@ async def _async_validate_connection(host: str, port: int, unit_id: int) -> None
             raise CannotConnect
 
         result = await client.read_holding_registers(
-            address=START_REGISTER, count=REGISTER_COUNT, slave=unit_id
+            address=START_REGISTER, count=REGISTER_COUNT, device_id=unit_id
         )
         if result is None or result.isError():
             raise CannotConnect
