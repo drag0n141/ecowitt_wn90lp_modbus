@@ -58,10 +58,16 @@ class Wn90lpSensor(CoordinatorEntity[Wn90lpModbusCoordinator], SensorEntity):
         self._attr_entity_registry_enabled_default = description.enabled_by_default
         if description.icon:
             self._attr_icon = description.icon
+        if description.options:
+            # ENUM sensor (e.g. the compass point): the allowed states.
+            self._attr_options = list(description.options)
+        if description.translation_key:
+            # Lets HA look up translated state labels (strings.json).
+            self._attr_translation_key = description.translation_key
         self._attr_device_info = device_info
 
     @property
-    def native_value(self) -> float | None:
+    def native_value(self) -> float | str | None:
         if self.coordinator.data is None:
             return None
         return self.coordinator.data.get(self._description.key)

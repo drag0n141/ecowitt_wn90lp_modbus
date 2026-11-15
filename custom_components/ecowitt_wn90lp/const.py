@@ -41,6 +41,28 @@ INVALID_VALUE: Final = 0xFFFF
 # UV Index has no HA-native unit; use a plain, descriptive string.
 UV_INDEX: Final = "UV index"
 
+# 16-point compass rose, clockwise starting at north. These are the ENUM
+# state keys of the compass sensor; the human-readable labels (including
+# the German O for east) live in strings.json / translations/*.json.
+COMPASS_POINTS: Final[tuple[str, ...]] = (
+    "n",
+    "nne",
+    "ne",
+    "ene",
+    "e",
+    "ese",
+    "se",
+    "sse",
+    "s",
+    "ssw",
+    "sw",
+    "wsw",
+    "w",
+    "wnw",
+    "nw",
+    "nnw",
+)
+
 
 @dataclass(frozen=True, kw_only=True)
 class Wn90lpSensorDescription:
@@ -63,6 +85,10 @@ class Wn90lpSensorDescription:
     icon: str | None = None
     signed: bool = False
     enabled_by_default: bool = True
+    # Only for device_class="enum" sensors: the allowed state keys, and the
+    # translation key under which their display labels are looked up.
+    options: tuple[str, ...] | None = None
+    translation_key: str | None = None
 
 
 # Register order exactly as returned by the WN90LP for a single block read
@@ -130,7 +156,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         key="wind_direction",
         name="Wind Direction",
         register_index=6,  # 0x016B
-        unit="\u00b0",
+        unit="°",
         state_class="measurement",
         icon="mdi:compass-outline",
     ),
@@ -183,5 +209,13 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         device_class="temperature",
         state_class="measurement",
         icon="mdi:snowflake-thermometer",
+    ),
+    Wn90lpSensorDescription(
+        key="wind_direction_compass",
+        name="Wind Direction (Compass)",
+        device_class="enum",
+        options=COMPASS_POINTS,
+        translation_key="wind_direction_compass",
+        icon="mdi:compass",
     ),
 )
