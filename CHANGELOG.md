@@ -5,6 +5,14 @@ follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH,
 where MINOR adds backward-compatible functionality and PATCH is a
 fix with no new functionality.
 
+## [0.8.1] - 2026-11-15
+
+### Fixed
+
+- The rain sensors showed small amounts as "0 mm" because Home Assistant
+  had picked 0 decimals as the display precision. "Rainfall" now shows
+  1 decimal and "Rain Counter (0.01 mm)" 2 decimals
+
 ## [0.8.0] - 2026-11-15
 
 ### Added
@@ -119,6 +127,7 @@ fix with no new functionality.
 - Invalid readings (`0xFFFF`) reported as `unavailable` instead of a
   bogus value
 
+[0.8.1]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.6.1...v0.7.0

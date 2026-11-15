@@ -94,6 +94,10 @@ class Wn90lpSensorDescription:
     icon: str | None = None
     signed: bool = False
     enabled_by_default: bool = True
+    # Number of decimals shown in the UI. Left unset, Home Assistant derives
+    # it from the first value it sees - for the rain counters that was 0
+    # (value 0.0), which displayed small amounts like 0.02 mm as "0 mm".
+    display_precision: int | None = None
     # Only for device_class="enum" sensors: the allowed state keys. Their
     # display labels are translated under entity.sensor.<key>.state.
     options: tuple[str, ...] | None = None
@@ -177,6 +181,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         device_class="precipitation",
         state_class="total_increasing",
         icon="mdi:weather-pouring",
+        display_precision=1,
     ),
     Wn90lpSensorDescription(
         key="pressure",
@@ -200,6 +205,7 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         # cases; this is the finer-grained alternative, off by default so
         # it doesn't clutter the entity list for people who don't need it.
         enabled_by_default=False,
+        display_precision=2,
     ),
     # --- Calculated sensors (no dedicated register) --------------------
     Wn90lpSensorDescription(
