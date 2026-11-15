@@ -41,6 +41,11 @@ INVALID_VALUE: Final = 0xFFFF
 # UV Index has no HA-native unit; use a plain, descriptive string.
 UV_INDEX: Final = "UV index"
 
+# The "Raining" binary sensor turns on when the rain counter increases and
+# stays on for this long after the last increase. Light rain only adds a
+# tick every few minutes, so without a hold time the sensor would flicker.
+RAIN_HOLD_TIME_MINUTES: Final = 10
+
 # 16-point compass rose, clockwise starting at north. These are the ENUM
 # state keys of the compass sensor; the human-readable labels (including
 # the German O for east) live in strings.json / translations/*.json.

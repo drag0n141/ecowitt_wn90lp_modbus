@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import math
+import time
 from datetime import timedelta
 from typing import Any
 
@@ -15,6 +16,7 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     INVALID_VALUE,
+    RAIN_HOLD_TIME_MINUTES,
     REGISTER_COUNT,
     SENSOR_DESCRIPTIONS,
     START_REGISTER,
@@ -69,7 +71,7 @@ def _compass_point(degrees: float) -> str:
 
 
 class Wn90lpModbusCoordinator(
-    DataUpdateCoordinator[dict[str, float | str | None]]
+    DataUpdateCoordinator[dict[str, float | str | bool | None]]
 ):
     """Polls the WN90LP via Modbus TCP and scales the raw registers."""
 
@@ -93,6 +95,9 @@ class Wn90lpModbusCoordinator(
         self._unit_id = unit_id
         self._entry = entry
         self._client: Any | None = None
+        # Rain detection state (see _update_rain_state).
+        self._last_rain_total: float | None = None
+        self._last_rain_increase: float | None = None  # time.monotonic()
 
     async def _async_get_client(self) -> Any:
         """Lazily create (and reuse) the async Modbus TCP client."""
@@ -112,7 +117,7 @@ class Wn90lpModbusCoordinator(
 
         return self._client
 
-    async def _async_update_data(self) -> dict[str, float | str | None]:
+    async def _async_update_data(self) -> dict[str, float | str | bool | None]:
         client = await self._async_get_client()
 
         try:
@@ -128,7 +133,7 @@ class Wn90lpModbusCoordinator(
             raise UpdateFailed(f"Modbus error response: {result}")
 
         raw_registers = result.registers
-        data: dict[str, float | str | None] = {}
+        data: dict[str, float | str | bool | None] = {}
 
         for description in SENSOR_DESCRIPTIONS:
             if description.register_index is None:
@@ -149,11 +154,40 @@ class Wn90lpModbusCoordinator(
             data[description.key] = round(value, 2)
 
         self._add_calculated_sensors(data)
+        self._update_rain_state(data)
 
         return data
 
+    def _update_rain_state(self, data: dict[str, float | str | bool | None]) -> None:
+        """Derive the on/off "raining" state from the rain counter.
+
+        The WN90LP only reports a cumulative rain counter. It is treated as
+        "raining" when the counter increased since the previous poll, and
+        stays on for RAIN_HOLD_TIME_MINUTES after the last increase (light
+        rain only adds a tick every few minutes). A counter that goes down
+        (device reset) just moves the baseline and does not count as rain.
+        The state starts "off" after a restart of Home Assistant until the
+        next increase is seen.
+        """
+        total = data.get("rainfall")
+        if not isinstance(total, (int, float)):
+            # Invalid reading: unknown. Keep the baseline so a gap does not
+            # turn into a bogus increase afterwards.
+            data["raining"] = None
+            return
+
+        now = time.monotonic()
+        if self._last_rain_total is not None and total > self._last_rain_total:
+            self._last_rain_increase = now
+        self._last_rain_total = total
+
+        data["raining"] = (
+            self._last_rain_increase is not None
+            and now - self._last_rain_increase <= RAIN_HOLD_TIME_MINUTES * 60
+        )
+
     @staticmethod
-    def _add_calculated_sensors(data: dict[str, float | str | None]) -> None:
+    def _add_calculated_sensors(data: dict[str, float | str | bool | None]) -> None:
         """Derive dew point / wind chill / compass point from read values."""
         temperature = data.get("temperature")
         humidity = data.get("humidity")
