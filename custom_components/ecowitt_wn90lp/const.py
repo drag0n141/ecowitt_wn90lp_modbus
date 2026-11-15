@@ -72,6 +72,10 @@ class Wn90lpSensorDescription:
     offset from START_REGISTER). A few are purely calculated from other
     already-read values (`register_index=None`) - see
     `coordinator._async_update_data` for where those are computed.
+
+    `name` is the English name; it is only documentation here. The name HA
+    actually displays is looked up from strings.json / translations/*.json
+    under `entity.sensor.<key>.name` (so every `key` needs an entry there).
     """
 
     key: str
@@ -85,10 +89,9 @@ class Wn90lpSensorDescription:
     icon: str | None = None
     signed: bool = False
     enabled_by_default: bool = True
-    # Only for device_class="enum" sensors: the allowed state keys, and the
-    # translation key under which their display labels are looked up.
+    # Only for device_class="enum" sensors: the allowed state keys. Their
+    # display labels are translated under entity.sensor.<key>.state.
     options: tuple[str, ...] | None = None
-    translation_key: str | None = None
 
 
 # Register order exactly as returned by the WN90LP for a single block read
@@ -215,7 +218,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         name="Wind Direction (Compass)",
         device_class="enum",
         options=COMPASS_POINTS,
-        translation_key="wind_direction_compass",
         icon="mdi:compass",
     ),
 )

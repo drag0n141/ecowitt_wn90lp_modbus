@@ -46,7 +46,44 @@
   },
   "entity": {
     "sensor": {
+      "light": {
+        "name": "Helligkeit"
+      },
+      "uv_index": {
+        "name": "UV-Index"
+      },
+      "temperature": {
+        "name": "Temperatur"
+      },
+      "humidity": {
+        "name": "Luftfeuchtigkeit"
+      },
+      "wind_speed": {
+        "name": "Windgeschwindigkeit"
+      },
+      "gust_speed": {
+        "name": "Böengeschwindigkeit"
+      },
+      "wind_direction": {
+        "name": "Windrichtung"
+      },
+      "rainfall": {
+        "name": "Niederschlag"
+      },
+      "pressure": {
+        "name": "Absoluter Luftdruck"
+      },
+      "rain_counter": {
+        "name": "Regenzähler (0,01 mm)"
+      },
+      "dew_point": {
+        "name": "Taupunkt"
+      },
+      "wind_chill": {
+        "name": "Windchill"
+      },
       "wind_direction_compass": {
+        "name": "Windrichtung (Himmelsrichtung)",
         "state": {
           "n": "N",
           "nne": "NNO",

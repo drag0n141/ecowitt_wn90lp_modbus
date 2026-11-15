@@ -49,12 +49,15 @@ class Wn90lpConnectivityBinarySensor(
     on/off, so a silent gateway/device outage shows up as a single
     diagnostic entity turning "off" instead of nine sensors quietly
     going stale.
+
+    It deliberately has no explicit name: with `_attr_has_entity_name` HA
+    falls back to the (translated) name of the device class, so it shows
+    up as "Connectivity" / "Konnektivität" depending on the language.
     """
 
     _attr_has_entity_name = True
     _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_name = "Connectivity"
 
     def __init__(
         self,

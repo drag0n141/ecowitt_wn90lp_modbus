@@ -51,7 +51,10 @@ class Wn90lpSensor(CoordinatorEntity[Wn90lpModbusCoordinator], SensorEntity):
         super().__init__(coordinator)
         self._description = description
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_name = description.name
+        # The displayed name comes from the translations
+        # (entity.sensor.<key>.name in strings.json / translations/*.json),
+        # so it follows the language of the Home Assistant installation.
+        self._attr_translation_key = description.key
         self._attr_native_unit_of_measurement = description.unit
         self._attr_device_class = description.device_class
         self._attr_state_class = description.state_class
@@ -61,9 +64,6 @@ class Wn90lpSensor(CoordinatorEntity[Wn90lpModbusCoordinator], SensorEntity):
         if description.options:
             # ENUM sensor (e.g. the compass point): the allowed states.
             self._attr_options = list(description.options)
-        if description.translation_key:
-            # Lets HA look up translated state labels (strings.json).
-            self._attr_translation_key = description.translation_key
         self._attr_device_info = device_info
 
     @property
