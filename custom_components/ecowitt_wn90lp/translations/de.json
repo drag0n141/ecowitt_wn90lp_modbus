@@ -80,7 +80,7 @@
         "name": "Taupunkt"
       },
       "wind_chill": {
-        "name": "Windchill"
+        "name": "Gefühlte Temperatur (Wind)"
       },
       "wind_direction_compass": {
         "name": "Windrichtung (Himmelsrichtung)",
