@@ -61,6 +61,8 @@ class Wn90lpSensor(CoordinatorEntity[Wn90lpModbusCoordinator], SensorEntity):
         self._attr_entity_registry_enabled_default = description.enabled_by_default
         if description.icon:
             self._attr_icon = description.icon
+        if description.display_precision is not None:
+            self._attr_suggested_display_precision = description.display_precision
         if description.options:
             # ENUM sensor (e.g. the compass point): the allowed states.
             self._attr_options = list(description.options)
