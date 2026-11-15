@@ -5,6 +5,39 @@ follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH,
 where MINOR adds backward-compatible functionality and PATCH is a
 fix with no new functionality.
 
+## [0.8.0] - 2026-11-15
+
+### Added
+
+- "Raining" binary sensor (German: "Regen"): on when the rain counter
+  increased recently, off after 10 minutes without an increase.
+  Unavailable while the rain reading is invalid
+
+## [0.7.1] - 2026-11-15
+
+### Changed
+
+- German name of the wind chill sensor is now "Gefühlte Temperatur
+  (Wind)" instead of the English loanword (#16)
+
+## [0.7.0] - 2026-11-15
+
+### Added
+
+- "Wind Direction (Compass)" sensor: 16-point compass heading derived
+  from the wind direction, with translated states (German: NNO, O,
+  OSO, ...) (#15)
+- Translated entity names (English and German) for all sensors and the
+  connectivity diagnostic entity (#15)
+
+## [0.6.1] - 2026-11-14
+
+### Fixed
+
+- Modbus reads failed with newer pymodbus (`unexpected keyword
+  argument 'slave'`); now uses `device_id` and requires
+  `pymodbus>=3.10.0` (#14)
+
 ## [0.6.0] - 2026-09-02
 
 ### Added
@@ -86,6 +119,10 @@ fix with no new functionality.
 - Invalid readings (`0xFFFF`) reported as `unavailable` instead of a
   bogus value
 
+[0.8.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.7.1...v0.8.0
+[0.7.1]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/releases/tag/v0.6.0
 [0.5.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.3.0...v0.4.0

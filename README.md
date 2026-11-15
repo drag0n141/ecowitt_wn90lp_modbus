@@ -76,6 +76,13 @@ no extra Modbus reads involved:
 | Wind Chill  | North American/JAG-TI 2001 formula from temperature + wind speed | Only meteorologically valid for temperature ≤ 10 °C and wind ≥ 4.8 km/h; outside that range this just returns the air temperature unchanged (same convention most weather services use for "feels like") |
 | Wind Direction (Compass) | 16-point compass rose derived from the wind direction in degrees (22.5° per point, e.g. 28° → NNE) | Enum sensor; the displayed labels are translated (German uses `O` for east: `NNO`, `NO`, `ONO`, `O`, `OSO`, `SO`, `SSO`). Unavailable whenever the wind direction is |
 
+### Binary sensors
+
+| Sensor | Behaviour |
+| ------ | --------- |
+| Raining (German: Regen) | The WN90LP only reports a cumulative rain counter. This sensor is **on** when the rainfall counter (`0x016C`) increased since the previous poll and stays on for **10 minutes** after the last increase (light rain only adds a tick every few minutes). A counter that goes down (device reset) does not count as rain. After a Home Assistant restart it starts **off** until the next increase is seen; it is unavailable while the rain reading is invalid. |
+| Connectivity (diagnostic) | On while the last Modbus poll succeeded; always available, so an outage is visible as a single entity turning off. |
+
 ### Notes from the spec
 
 - `0x0165`–`0x0168`, `0x016C` and `0x016E` update roughly every 8.75 s;

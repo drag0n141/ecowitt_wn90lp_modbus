@@ -103,6 +103,11 @@
           "nnw": "NNW"
         }
       }
+    },
+    "binary_sensor": {
+      "raining": {
+        "name": "Raining"
+      }
     }
   }
 }

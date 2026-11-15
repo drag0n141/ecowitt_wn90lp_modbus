@@ -21,7 +21,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the WN90LP connectivity diagnostic entity."""
+    """Set up the WN90LP binary sensors (rain + connectivity diagnostic)."""
     coordinator: Wn90lpModbusCoordinator = hass.data[DOMAIN][entry.entry_id]
 
     device_info = DeviceInfo(
@@ -33,8 +33,51 @@ async def async_setup_entry(
     )
 
     async_add_entities(
-        [Wn90lpConnectivityBinarySensor(coordinator, entry, device_info)]
+        [
+            Wn90lpRainBinarySensor(coordinator, entry, device_info),
+            Wn90lpConnectivityBinarySensor(coordinator, entry, device_info),
+        ]
     )
+
+
+class Wn90lpRainBinarySensor(
+    CoordinatorEntity[Wn90lpModbusCoordinator], BinarySensorEntity
+):
+    """On while it is raining, derived from the rain counter.
+
+    The coordinator turns the cumulative rain counter into a boolean (on
+    when the counter increased recently, see `RAIN_HOLD_TIME_MINUTES`).
+    The name comes from the translations (entity.binary_sensor.raining).
+    Unavailable while the rain reading is invalid.
+    """
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "raining"
+    _attr_icon = "mdi:weather-rainy"
+
+    def __init__(
+        self,
+        coordinator: Wn90lpModbusCoordinator,
+        entry: ConfigEntry,
+        device_info: DeviceInfo,
+    ) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_raining"
+        self._attr_device_info = device_info
+
+    @property
+    def is_on(self) -> bool | None:
+        if self.coordinator.data is None:
+            return None
+        return self.coordinator.data.get("raining")
+
+    @property
+    def available(self) -> bool:
+        return (
+            super().available
+            and self.coordinator.data is not None
+            and self.coordinator.data.get("raining") is not None
+        )
 
 
 class Wn90lpConnectivityBinarySensor(
