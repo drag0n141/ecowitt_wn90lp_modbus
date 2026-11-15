@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Ecowitt WN90LP (Modbus)",
-        "description": "Verbindung zur WN90LP \u00fcber ein Modbus RTU-zu-TCP-Gateway.",
+        "description": "Verbindung zur WN90LP über ein Modbus RTU-zu-TCP-Gateway.",
         "data": {
           "name": "Name",
           "host": "Gateway Host/IP",
@@ -14,7 +14,7 @@
       },
       "reconfigure": {
         "title": "Ecowitt WN90LP neu konfigurieren",
-        "description": "Verbindungsdaten zu Gateway/Ger\u00e4t aktualisieren.",
+        "description": "Verbindungsdaten zu Gateway/Gerät aktualisieren.",
         "data": {
           "name": "Name",
           "host": "Gateway Host/IP",
@@ -25,11 +25,11 @@
       }
     },
     "error": {
-      "cannot_connect": "Verbindung zum Modbus-Gateway/-Ger\u00e4t fehlgeschlagen.",
+      "cannot_connect": "Verbindung zum Modbus-Gateway/-Gerät fehlgeschlagen.",
       "unknown": "Unerwarteter Fehler."
     },
     "abort": {
-      "already_configured": "Dieses Ger\u00e4t ist bereits konfiguriert.",
+      "already_configured": "Dieses Gerät ist bereits konfiguriert.",
       "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
     }
   },
@@ -37,9 +37,70 @@
     "step": {
       "init": {
         "title": "Ecowitt WN90LP Optionen",
-        "description": "Abfrageh\u00e4ufigkeit des Ger\u00e4ts anpassen.",
+        "description": "Abfragehäufigkeit des Geräts anpassen.",
         "data": {
           "scan_interval": "Abfrageintervall (Sekunden)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "light": {
+        "name": "Helligkeit"
+      },
+      "uv_index": {
+        "name": "UV-Index"
+      },
+      "temperature": {
+        "name": "Temperatur"
+      },
+      "humidity": {
+        "name": "Luftfeuchtigkeit"
+      },
+      "wind_speed": {
+        "name": "Windgeschwindigkeit"
+      },
+      "gust_speed": {
+        "name": "Böengeschwindigkeit"
+      },
+      "wind_direction": {
+        "name": "Windrichtung"
+      },
+      "rainfall": {
+        "name": "Niederschlag"
+      },
+      "pressure": {
+        "name": "Absoluter Luftdruck"
+      },
+      "rain_counter": {
+        "name": "Regenzähler (0,01 mm)"
+      },
+      "dew_point": {
+        "name": "Taupunkt"
+      },
+      "wind_chill": {
+        "name": "Windchill"
+      },
+      "wind_direction_compass": {
+        "name": "Windrichtung (Himmelsrichtung)",
+        "state": {
+          "n": "N",
+          "nne": "NNO",
+          "ne": "NO",
+          "ene": "ONO",
+          "e": "O",
+          "ese": "OSO",
+          "se": "SO",
+          "sse": "SSO",
+          "s": "S",
+          "ssw": "SSW",
+          "sw": "SW",
+          "wsw": "WSW",
+          "w": "W",
+          "wnw": "WNW",
+          "nw": "NW",
+          "nnw": "NNW"
         }
       }
     }

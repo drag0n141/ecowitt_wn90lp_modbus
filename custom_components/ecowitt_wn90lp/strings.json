@@ -43,5 +43,66 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "light": {
+        "name": "Light"
+      },
+      "uv_index": {
+        "name": "UV Index"
+      },
+      "temperature": {
+        "name": "Temperature"
+      },
+      "humidity": {
+        "name": "Humidity"
+      },
+      "wind_speed": {
+        "name": "Wind Speed"
+      },
+      "gust_speed": {
+        "name": "Gust Speed"
+      },
+      "wind_direction": {
+        "name": "Wind Direction"
+      },
+      "rainfall": {
+        "name": "Rainfall"
+      },
+      "pressure": {
+        "name": "Absolute Pressure"
+      },
+      "rain_counter": {
+        "name": "Rain Counter (0.01 mm)"
+      },
+      "dew_point": {
+        "name": "Dew Point"
+      },
+      "wind_chill": {
+        "name": "Wind Chill"
+      },
+      "wind_direction_compass": {
+        "name": "Wind Direction (Compass)",
+        "state": {
+          "n": "N",
+          "nne": "NNE",
+          "ne": "NE",
+          "ene": "ENE",
+          "e": "E",
+          "ese": "ESE",
+          "se": "SE",
+          "sse": "SSE",
+          "s": "S",
+          "ssw": "SSW",
+          "sw": "SW",
+          "wsw": "WSW",
+          "w": "W",
+          "wnw": "WNW",
+          "nw": "NW",
+          "nnw": "NNW"
+        }
+      }
+    }
   }
 }
