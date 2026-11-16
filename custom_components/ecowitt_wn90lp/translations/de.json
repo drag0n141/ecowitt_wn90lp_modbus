@@ -92,27 +92,6 @@
       "wind_chill": {
         "name": "Gefühlte Temperatur (Wind)"
       },
-      "wind_direction_compass": {
-        "name": "Windrichtung (Himmelsrichtung)",
-        "state": {
-          "n": "N",
-          "nne": "NNO",
-          "ne": "NO",
-          "ene": "ONO",
-          "e": "O",
-          "ese": "OSO",
-          "se": "SO",
-          "sse": "SSO",
-          "s": "S",
-          "ssw": "SSW",
-          "sw": "SW",
-          "wsw": "WSW",
-          "w": "W",
-          "wnw": "WNW",
-          "nw": "NW",
-          "nnw": "NNW"
-        }
-      },
       "rain_today": {
         "name": "Niederschlag heute"
       },

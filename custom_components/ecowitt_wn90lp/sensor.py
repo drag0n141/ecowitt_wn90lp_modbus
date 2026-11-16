@@ -64,7 +64,7 @@ class Wn90lpSensor(CoordinatorEntity[Wn90lpModbusCoordinator], SensorEntity):
         if description.display_precision is not None:
             self._attr_suggested_display_precision = description.display_precision
         if description.options:
-            # ENUM sensor (e.g. the compass point): the allowed states.
+            # ENUM sensor: the allowed states.
             self._attr_options = list(description.options)
         self._attr_device_info = device_info
 
