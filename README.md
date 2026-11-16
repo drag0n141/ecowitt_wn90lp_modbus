@@ -42,6 +42,9 @@ Settings → Devices & Services → Add Integration → **Ecowitt WN90LP
 - **Unit/Slave ID**: `144` unless you changed it on the device
 - **Scan interval**: default `30` seconds
 
+All of these (including the gateway IP) can be changed later via the
+integration's **Configure** button.
+
 ## Sensors
 
 All registers are read in a single Modbus request (function `0x03`,

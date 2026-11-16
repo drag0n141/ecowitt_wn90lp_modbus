@@ -37,11 +37,21 @@
     "step": {
       "init": {
         "title": "Ecowitt WN90LP Optionen",
-        "description": "Abfragehäufigkeit des Geräts anpassen.",
+        "description": "Gateway-Verbindung und Abfragehäufigkeit des Geräts anpassen.",
         "data": {
+          "host": "Gateway Host/IP",
+          "port": "Gateway Port",
+          "unit_id": "Modbus Unit-/Slave-ID",
           "scan_interval": "Abfrageintervall (Sekunden)"
         }
       }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum Modbus-Gateway/-Gerät fehlgeschlagen.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "already_configured": "Dieses Gerät ist bereits konfiguriert."
     }
   },
   "entity": {

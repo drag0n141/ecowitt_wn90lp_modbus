@@ -150,13 +150,35 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     f"{user_input[CONF_HOST]}:{user_input[CONF_PORT]}:"
                     f"{user_input[CONF_UNIT_ID]}"
                 )
-                await self.async_set_unique_id(unique_id)
-                # If the recomputed unique_id still belongs to *this* entry,
-                # this updates its data and reloads it, then aborts the flow
-                # with "reconfigure_successful". If it now collides with a
-                # *different* entry, it aborts with "already_configured"
-                # instead - both are exactly what we want here.
-                self._abort_if_unique_id_configured(updates=user_input)
+                # The unique ID is derived from host/port/unit-id, so it
+                # changes together with them. Refuse only if it now belongs
+                # to a *different* entry.
+                for other in self._async_current_entries(include_ignore=False):
+                    if (
+                        other.entry_id != reconfigure_entry.entry_id
+                        and other.unique_id == unique_id
+                    ):
+                        return self.async_abort(reason="already_configured")
+
+                # A scan interval set via the options flow takes precedence
+                # over the one in the entry data, so keep both in sync.
+                if CONF_SCAN_INTERVAL in reconfigure_entry.options:
+                    self.hass.config_entries.async_update_entry(
+                        reconfigure_entry,
+                        options={
+                            **reconfigure_entry.options,
+                            CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
+                        },
+                    )
+
+                # Update the entry (data, title, unique ID), reload it and
+                # finish the flow with "reconfigure_successful".
+                return self.async_update_reload_and_abort(
+                    reconfigure_entry,
+                    unique_id=unique_id,
+                    title=user_input[CONF_NAME],
+                    data_updates=user_input,
+                )
 
         return self.async_show_form(
             step_id="reconfigure",
@@ -178,32 +200,78 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class OptionsFlowHandler(config_entries.OptionsFlow):
     """Handle options for an existing Ecowitt WN90LP Modbus entry.
 
-    Currently exposes a single setting: the Modbus poll interval. The
-    WN90LP returns all of its registers in one contiguous block read, so
-    unlike integrations that poll many registers at different priorities
-    (fast-changing vs. slow-changing), a single interval is sufficient
-    here. For changing host/port/unit-id, use "Reconfigure" instead.
+    Exposes the connection details (gateway host/port, unit ID) and the
+    poll interval, so the gateway IP can be changed from the integration's
+    "Configure" dialog. The WN90LP returns all of its registers in one
+    contiguous block read, so a single poll interval is sufficient.
     """
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+        errors: dict[str, str] = {}
+        entry = self.config_entry
 
-        current_scan_interval = self.config_entry.options.get(
-            CONF_SCAN_INTERVAL,
-            self.config_entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
-        )
+        if user_input is not None:
+            host = user_input[CONF_HOST].strip()
+            port = user_input[CONF_PORT]
+            unit_id = user_input[CONF_UNIT_ID]
+            unique_id = f"{host}:{port}:{unit_id}"
+
+            if any(
+                other.entry_id != entry.entry_id and other.unique_id == unique_id
+                for other in self.hass.config_entries.async_entries(DOMAIN)
+            ):
+                return self.async_abort(reason="already_configured")
+
+            try:
+                await _async_validate_connection(host, port, unit_id)
+            except CannotConnect:
+                errors["base"] = "cannot_connect"
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Unexpected exception during WN90LP options")
+                errors["base"] = "unknown"
+            else:
+                self.hass.config_entries.async_update_entry(
+                    entry,
+                    data={
+                        **entry.data,
+                        CONF_HOST: host,
+                        CONF_PORT: port,
+                        CONF_UNIT_ID: unit_id,
+                    },
+                    unique_id=unique_id,
+                )
+                return self.async_create_entry(
+                    title="",
+                    data={CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL]},
+                )
+
+        current = {
+            CONF_HOST: entry.data[CONF_HOST],
+            CONF_PORT: entry.data[CONF_PORT],
+            CONF_UNIT_ID: entry.data[CONF_UNIT_ID],
+            CONF_SCAN_INTERVAL: entry.options.get(
+                CONF_SCAN_INTERVAL,
+                entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
+            ),
+        }
+        if user_input is not None:
+            current = {**current, **user_input}
 
         schema = vol.Schema(
             {
-                vol.Optional(
-                    CONF_SCAN_INTERVAL, default=current_scan_interval
+                vol.Required(CONF_HOST, default=current[CONF_HOST]): str,
+                vol.Required(CONF_PORT, default=current[CONF_PORT]): vol.Coerce(int),
+                vol.Required(
+                    CONF_UNIT_ID, default=current[CONF_UNIT_ID]
+                ): _UNIT_ID_SELECTOR,
+                vol.Required(
+                    CONF_SCAN_INTERVAL, default=current[CONF_SCAN_INTERVAL]
                 ): _SCAN_INTERVAL_SELECTOR,
             }
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
 
 
 class CannotConnect(Exception):
