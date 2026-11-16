@@ -150,13 +150,35 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     f"{user_input[CONF_HOST]}:{user_input[CONF_PORT]}:"
                     f"{user_input[CONF_UNIT_ID]}"
                 )
-                await self.async_set_unique_id(unique_id)
-                # If the recomputed unique_id still belongs to *this* entry,
-                # this updates its data and reloads it, then aborts the flow
-                # with "reconfigure_successful". If it now collides with a
-                # *different* entry, it aborts with "already_configured"
-                # instead - both are exactly what we want here.
-                self._abort_if_unique_id_configured(updates=user_input)
+                # The unique ID is derived from host/port/unit-id, so it
+                # changes together with them. Refuse only if it now belongs
+                # to a *different* entry.
+                for other in self._async_current_entries(include_ignore=False):
+                    if (
+                        other.entry_id != reconfigure_entry.entry_id
+                        and other.unique_id == unique_id
+                    ):
+                        return self.async_abort(reason="already_configured")
+
+                # A scan interval set via the options flow takes precedence
+                # over the one in the entry data, so keep both in sync.
+                if CONF_SCAN_INTERVAL in reconfigure_entry.options:
+                    self.hass.config_entries.async_update_entry(
+                        reconfigure_entry,
+                        options={
+                            **reconfigure_entry.options,
+                            CONF_SCAN_INTERVAL: user_input[CONF_SCAN_INTERVAL],
+                        },
+                    )
+
+                # Update the entry (data, title, unique ID), reload it and
+                # finish the flow with "reconfigure_successful".
+                return self.async_update_reload_and_abort(
+                    reconfigure_entry,
+                    unique_id=unique_id,
+                    title=user_input[CONF_NAME],
+                    data_updates=user_input,
+                )
 
         return self.async_show_form(
             step_id="reconfigure",
