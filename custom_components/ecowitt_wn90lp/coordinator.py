@@ -234,7 +234,7 @@ class Wn90lpModbusCoordinator(
             data["rain_rate"] = round((total - oldest_total) / (elapsed / 3600), 2)
 
     def _update_rain_state(self, data: dict[str, float | str | bool | None]) -> None:
-        """Derive the on/off "raining" state from the rain counter.
+        """Derive the on/off "raining" state from the fine rain counter (0.01 mm).
 
         The WN90LP only reports a cumulative rain counter. It is treated as
         "raining" when the counter increased since the previous poll, and
@@ -244,7 +244,7 @@ class Wn90lpModbusCoordinator(
         The state starts "off" after a restart of Home Assistant until the
         next increase is seen.
         """
-        total = data.get("rainfall")
+        total = data.get("rain_counter")
         if not isinstance(total, (int, float)):
             # Invalid reading: unknown. Keep the baseline so a gap does not
             # turn into a bogus increase afterwards.

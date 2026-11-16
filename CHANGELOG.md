@@ -15,6 +15,12 @@ fix with no new functionality.
 - "Rain Rate" sensor (German: "Regenrate"): rain intensity in mm/h over
   a 10 minute window
 
+### Changed
+
+- The "Raining" sensor now evaluates the fine rain counter (0.01 mm)
+  instead of the 0.1 mm counter, so light rain is detected more reliably
+  (hold time unchanged at 10 minutes)
+
 ## [0.8.1] - 2026-11-15
 
 ### Fixed
