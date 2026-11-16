@@ -67,7 +67,7 @@ a bogus number.
 
 ### Calculated sensors
 
-Three additional sensors are computed client-side from the values above -
+Five additional sensors are computed client-side from the values above -
 no extra Modbus reads involved:
 
 | Sensor      | Formula                                    | Notes |
@@ -75,12 +75,14 @@ no extra Modbus reads involved:
 | Dew Point   | Magnus-Tetens approximation from temperature + humidity | `null` if humidity is 0% |
 | Wind Chill  | North American/JAG-TI 2001 formula from temperature + wind speed | Only meteorologically valid for temperature ≤ 10 °C and wind ≥ 4.8 km/h; outside that range this just returns the air temperature unchanged (same convention most weather services use for "feels like") |
 | Wind Direction (Compass) | 16-point compass rose derived from the wind direction in degrees (22.5° per point, e.g. 28° → NNE) | Enum sensor; the displayed labels are translated (German uses `O` for east: `NNO`, `NO`, `ONO`, `O`, `OSO`, `SO`, `SSO`). Unavailable whenever the wind direction is |
+| Rain Today | Rain counter (0.01 mm) now minus the counter at the start of the local day (baseline is persisted across restarts) | Resets at midnight. If the station restarts and its counter drops, everything counted since is treated as today's rain. On first install it starts at 0 from that moment |
+| Rain Rate | Increase of the rain counter (0.01 mm) over the last 10 minutes, scaled to mm/h | Smoothed, so it lags up to 10 minutes and resolves 0.06 mm/h at the smallest step; reports 0 for the first 2 minutes after a restart |
 
 ### Binary sensors
 
 | Sensor | Behaviour |
 | ------ | --------- |
-| Raining (German: Regen) | The WN90LP only reports a cumulative rain counter. This sensor is **on** when the rainfall counter (`0x016C`) increased since the previous poll and stays on for **10 minutes** after the last increase (light rain only adds a tick every few minutes). A counter that goes down (device reset) does not count as rain. After a Home Assistant restart it starts **off** until the next increase is seen; it is unavailable while the rain reading is invalid. |
+| Raining (German: Regen) | The WN90LP only reports a cumulative rain counter. This sensor is **on** when the fine rain counter (`0x016E`, 0.01 mm) increased since the previous poll and stays on for **10 minutes** after the last increase (light rain only adds a tick every few minutes). A counter that goes down (device reset) does not count as rain. After a Home Assistant restart it starts **off** until the next increase is seen; it is unavailable while the rain reading is invalid. |
 | Connectivity (diagnostic) | On while the last Modbus poll succeeded; always available, so an outage is visible as a single entity turning off. |
 
 ### Notes from the spec

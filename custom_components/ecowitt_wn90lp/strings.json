@@ -102,6 +102,12 @@
           "nw": "NW",
           "nnw": "NNW"
         }
+      },
+      "rain_today": {
+        "name": "Rain Today"
+      },
+      "rain_rate": {
+        "name": "Rain Rate"
       }
     },
     "binary_sensor": {
