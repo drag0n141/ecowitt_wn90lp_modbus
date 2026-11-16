@@ -15,7 +15,6 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from homeassistant.util import dt as dt_util
 
 from .const import (
-    COMPASS_POINTS,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     INVALID_VALUE,
@@ -64,16 +63,6 @@ def _calculate_wind_chill(temperature_c: float, wind_speed_ms: float) -> float:
         - 11.37 * wind_kmh**0.16
         + 0.3965 * temperature_c * wind_kmh**0.16
     )
-
-
-def _compass_point(degrees: float) -> str:
-    """Map a wind direction in degrees to a 16-point compass key.
-
-    Each point covers 22.5 degrees centred on its heading, so north spans
-    348.75-11.25 degrees, north-north-east 11.25-33.75 degrees, and so on.
-    """
-    index = int((degrees % 360) / 22.5 + 0.5) % 16
-    return COMPASS_POINTS[index]
 
 
 class Wn90lpModbusCoordinator(
@@ -263,11 +252,10 @@ class Wn90lpModbusCoordinator(
 
     @staticmethod
     def _add_calculated_sensors(data: dict[str, float | str | bool | None]) -> None:
-        """Derive dew point / wind chill / compass point from read values."""
+        """Derive dew point / wind chill from read values."""
         temperature = data.get("temperature")
         humidity = data.get("humidity")
         wind_speed = data.get("wind_speed")
-        wind_direction = data.get("wind_direction")
 
         data["dew_point"] = (
             round(_calculate_dew_point(temperature, humidity), 1)
@@ -279,10 +267,6 @@ class Wn90lpModbusCoordinator(
             round(_calculate_wind_chill(temperature, wind_speed), 1)
             if temperature is not None and wind_speed is not None
             else None
-        )
-
-        data["wind_direction_compass"] = (
-            _compass_point(wind_direction) if wind_direction is not None else None
         )
 
     async def async_shutdown_client(self) -> None:

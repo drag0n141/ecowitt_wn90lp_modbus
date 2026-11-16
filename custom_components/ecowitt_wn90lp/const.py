@@ -58,28 +58,6 @@ RAIN_RATE_MIN_SECONDS: Final = 120
 # Storage version of the persisted "rain today" baseline.
 STORAGE_VERSION: Final = 1
 
-# 16-point compass rose, clockwise starting at north. These are the ENUM
-# state keys of the compass sensor; the human-readable labels (including
-# the German O for east) live in strings.json / translations/*.json.
-COMPASS_POINTS: Final[tuple[str, ...]] = (
-    "n",
-    "nne",
-    "ne",
-    "ene",
-    "e",
-    "ese",
-    "se",
-    "sse",
-    "s",
-    "ssw",
-    "sw",
-    "wsw",
-    "w",
-    "wnw",
-    "nw",
-    "nnw",
-)
-
 
 @dataclass(frozen=True, kw_only=True)
 class Wn90lpSensorDescription:
@@ -235,13 +213,6 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         device_class="temperature",
         state_class="measurement",
         icon="mdi:snowflake-thermometer",
-    ),
-    Wn90lpSensorDescription(
-        key="wind_direction_compass",
-        name="Wind Direction (Compass)",
-        device_class="enum",
-        options=COMPASS_POINTS,
-        icon="mdi:compass",
     ),
     Wn90lpSensorDescription(
         key="rain_today",
