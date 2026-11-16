@@ -4,12 +4,15 @@ from __future__ import annotations
 import logging
 import math
 import time
+from collections import deque
 from datetime import timedelta
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .const import (
     COMPASS_POINTS,
@@ -17,9 +20,12 @@ from .const import (
     DOMAIN,
     INVALID_VALUE,
     RAIN_HOLD_TIME_MINUTES,
+    RAIN_RATE_MIN_SECONDS,
+    RAIN_RATE_WINDOW_MINUTES,
     REGISTER_COUNT,
     SENSOR_DESCRIPTIONS,
     START_REGISTER,
+    STORAGE_VERSION,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -98,6 +104,28 @@ class Wn90lpModbusCoordinator(
         # Rain detection state (see _update_rain_state).
         self._last_rain_total: float | None = None
         self._last_rain_increase: float | None = None  # time.monotonic()
+        # "Rain today": counter value at the start of the current local day,
+        # persisted so a restart of Home Assistant does not reset the day.
+        self._store: Store = Store(
+            hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}.rain_day"
+        )
+        self._day: str | None = None
+        self._day_baseline: float | None = None
+        # "Rain rate": (time.monotonic(), counter) samples of the last window.
+        self._rate_samples: deque[tuple[float, float]] = deque()
+
+    async def async_load_state(self) -> None:
+        """Load the persisted "rain today" baseline (call before first refresh)."""
+        stored = await self._store.async_load()
+        if isinstance(stored, dict):
+            day = stored.get("day")
+            baseline = stored.get("baseline")
+            if isinstance(day, str) and isinstance(baseline, (int, float)):
+                self._day = day
+                self._day_baseline = float(baseline)
+
+    def _data_to_save(self) -> dict[str, Any]:
+        return {"day": self._day, "baseline": self._day_baseline}
 
     async def _async_get_client(self) -> Any:
         """Lazily create (and reuse) the async Modbus TCP client."""
@@ -155,8 +183,55 @@ class Wn90lpModbusCoordinator(
 
         self._add_calculated_sensors(data)
         self._update_rain_state(data)
+        self._update_rain_totals(data)
 
         return data
+
+    def _update_rain_totals(self, data: dict[str, float | str | bool | None]) -> None:
+        """Derive "rain today" (mm) and "rain rate" (mm/h) from the fine counter.
+
+        Both use the 0.01 mm counter so they agree with each other. The
+        counter is cumulative since the station was powered on:
+
+        - rain today = counter now - counter at the start of the local day
+          (baseline, persisted). A counter that goes down (station restart)
+          resets the baseline to 0, so everything counted since is today's.
+        - rain rate = counter increase over the last RAIN_RATE_WINDOW_MINUTES,
+          scaled to mm/h; 0 until there are enough samples.
+        """
+        total = data.get("rain_counter")
+        if not isinstance(total, (int, float)):
+            data["rain_today"] = None
+            data["rain_rate"] = None
+            return
+
+        today = dt_util.now().date().isoformat()
+        changed = False
+        if self._day != today or self._day_baseline is None:
+            self._day = today
+            self._day_baseline = float(total)
+            changed = True
+        elif total < self._day_baseline:
+            self._day_baseline = 0.0
+            changed = True
+        if changed:
+            self._store.async_delay_save(self._data_to_save, 10)
+        data["rain_today"] = round(total - self._day_baseline, 2)
+
+        now = time.monotonic()
+        samples = self._rate_samples
+        if samples and total < samples[-1][1]:
+            samples.clear()  # counter reset
+        samples.append((now, float(total)))
+        cutoff = now - RAIN_RATE_WINDOW_MINUTES * 60
+        while len(samples) > 1 and samples[1][0] <= cutoff:
+            samples.popleft()
+        oldest_time, oldest_total = samples[0]
+        elapsed = now - oldest_time
+        if elapsed < RAIN_RATE_MIN_SECONDS:
+            data["rain_rate"] = 0.0
+        else:
+            data["rain_rate"] = round((total - oldest_total) / (elapsed / 3600), 2)
 
     def _update_rain_state(self, data: dict[str, float | str | bool | None]) -> None:
         """Derive the on/off "raining" state from the rain counter.

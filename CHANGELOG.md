@@ -5,6 +5,16 @@ follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH,
 where MINOR adds backward-compatible functionality and PATCH is a
 fix with no new functionality.
 
+## [0.9.0] - 2026-11-16
+
+### Added
+
+- "Rain Today" sensor (German: "Niederschlag heute"): rain since local
+  midnight, derived from the fine rain counter; the day's baseline is
+  persisted across restarts
+- "Rain Rate" sensor (German: "Regenrate"): rain intensity in mm/h over
+  a 10 minute window
+
 ## [0.8.1] - 2026-11-15
 
 ### Fixed
@@ -127,6 +137,7 @@ fix with no new functionality.
 - Invalid readings (`0xFFFF`) reported as `unavailable` instead of a
   bogus value
 
+[0.9.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/drag0n141/ecowitt_wn90lp_modbus/compare/v0.7.0...v0.7.1

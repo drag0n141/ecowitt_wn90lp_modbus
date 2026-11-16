@@ -10,6 +10,7 @@ from homeassistant.const import (
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
+    UnitOfVolumetricFlux,
 )
 
 DOMAIN: Final = "ecowitt_wn90lp"
@@ -45,6 +46,17 @@ UV_INDEX: Final = "UV index"
 # stays on for this long after the last increase. Light rain only adds a
 # tick every few minutes, so without a hold time the sensor would flicker.
 RAIN_HOLD_TIME_MINUTES: Final = 10
+
+# The "Rain Rate" sensor is the rain counter increase over this sliding
+# window, scaled to mm/h. A longer window is smoother but reacts later;
+# the counter has a 0.01 mm resolution, so 10 minutes resolves 0.06 mm/h.
+RAIN_RATE_WINDOW_MINUTES: Final = 10
+# Below this much elapsed time between samples the rate is reported as 0
+# (e.g. right after a restart) instead of extrapolating a single tick.
+RAIN_RATE_MIN_SECONDS: Final = 120
+
+# Storage version of the persisted "rain today" baseline.
+STORAGE_VERSION: Final = 1
 
 # 16-point compass rose, clockwise starting at north. These are the ENUM
 # state keys of the compass sensor; the human-readable labels (including
@@ -230,5 +242,23 @@ SENSOR_DESCRIPTIONS: Final[tuple[Wn90lpSensorDescription, ...]] = (
         device_class="enum",
         options=COMPASS_POINTS,
         icon="mdi:compass",
+    ),
+    Wn90lpSensorDescription(
+        key="rain_today",
+        name="Rain Today",
+        unit=UnitOfLength.MILLIMETERS,
+        device_class="precipitation",
+        state_class="total_increasing",
+        icon="mdi:weather-rainy",
+        display_precision=1,
+    ),
+    Wn90lpSensorDescription(
+        key="rain_rate",
+        name="Rain Rate",
+        unit=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        device_class="precipitation_intensity",
+        state_class="measurement",
+        icon="mdi:weather-pouring",
+        display_precision=1,
     ),
 )
