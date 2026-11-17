@@ -10,10 +10,11 @@ Elfin EW11, USR, etc.) — no cloud, no console, fully local.
 ## Requirements
 
 - A configured **Modbus RTU-to-TCP gateway** wired to the WN90LP's RS485
-  port (9600 baud, 8N1, no parity — the WN90LP's own defaults)
+  port, set to the same serial settings as the WN90LP (default: 9600 baud,
+  8 data bits, no parity, 1 stop bit)
 - The gateway's IP address and port (usually 502)
 - The WN90LP's Modbus unit/slave ID (factory default: `144` / `0x90`)
-- Home Assistant 2024.1 or later
+- Home Assistant 2024.12 or later
 - HACS (optional, for easy installation)
 
 ## Installation
@@ -108,7 +109,10 @@ no extra Modbus reads involved:
 | White | 485_B  | RS485 B      |
 
 Default Modbus parameters: **9600 baud, 8 data bits, no parity, 1 stop
-bit**, slave address `0x90`.
+bit**, slave address `0x90`. The baud rate is configurable on the device
+(4800 / 9600 / 19200 / 115200 bps); the gateway must use the same
+setting. The integration itself only talks Modbus TCP to the gateway and
+has no baud rate setting.
 
 ## License
 
