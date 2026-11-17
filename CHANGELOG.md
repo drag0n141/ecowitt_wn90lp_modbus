@@ -5,10 +5,43 @@ follows [Semantic Versioning](https://semver.org/): MAJOR.MINOR.PATCH,
 where MINOR adds backward-compatible functionality and PATCH is a
 fix with no new functionality.
 
-## [0.9.0] - 2026-11-16
+## [0.8.3] - 2026-11-17
+
+### Changed
+
+- Default scan interval is now 10 seconds (was 30). The WN90LP reports
+  new values about every 8.8 seconds. Existing entries keep their
+  configured interval
+
+## [0.8.2] - 2026-11-16
+
+### Removed
+
+- "Wind Direction (Compass)" sensor: the compass point changed so often
+  that it flooded the logbook/history. The wind direction in degrees is
+  unchanged. An existing compass entity can be deleted in Home Assistant
+
+## [0.8.1] - 2026-11-16
+
+### Fixed
+
+- "Reconfigure" did not save changed connection details: changing the
+  gateway IP/port/unit ID just showed the form again. The entry (data,
+  title and unique ID) is now updated and reloaded
+
+### Changed
+
+- The integration's "Configure" dialog now also offers the gateway
+  host/IP, port and unit ID (not only the scan interval), so the IP can
+  be changed there. The connection is tested before saving
+
+## [0.8.0] - 2026-11-16
 
 ### Added
 
+- "Raining" binary sensor (German: "Regen"): on when the fine rain
+  counter (0.01 mm) increased within the last 10 minutes. Unavailable
+  while the rain reading is invalid
 - "Rain Today" sensor (German: "Niederschlag heute"): rain since local
   midnight, derived from the fine rain counter; the day's baseline is
   persisted across restarts
@@ -17,32 +50,14 @@ fix with no new functionality.
 
 ### Changed
 
-- The "Raining" sensor now evaluates the fine rain counter (0.01 mm)
-  instead of the 0.1 mm counter, so light rain is detected more reliably
-  (hold time unchanged at 10 minutes)
-
-## [0.8.1] - 2026-11-15
+- German name of the wind chill sensor is now "Gefühlte Temperatur
+  (Wind)" instead of the English loanword (#16)
 
 ### Fixed
 
 - The rain sensors showed small amounts as "0 mm" because Home Assistant
   had picked 0 decimals as the display precision. "Rainfall" now shows
   1 decimal and "Rain Counter (0.01 mm)" 2 decimals
-
-## [0.8.0] - 2026-11-15
-
-### Added
-
-- "Raining" binary sensor (German: "Regen"): on when the rain counter
-  increased recently, off after 10 minutes without an increase.
-  Unavailable while the rain reading is invalid
-
-## [0.7.1] - 2026-11-15
-
-### Changed
-
-- German name of the wind chill sensor is now "Gefühlte Temperatur
-  (Wind)" instead of the English loanword (#16)
 
 ## [0.7.0] - 2026-11-15
 

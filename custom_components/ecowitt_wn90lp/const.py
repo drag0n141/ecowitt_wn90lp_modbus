@@ -21,7 +21,7 @@ CONF_UNIT_ID: Final = "unit_id"
 DEFAULT_NAME: Final = "Ecowitt WN90LP"
 DEFAULT_PORT: Final = 502
 DEFAULT_UNIT_ID: Final = 144  # 0x90 - Ecowitt factory default slave address
-DEFAULT_SCAN_INTERVAL: Final = 30  # seconds
+DEFAULT_SCAN_INTERVAL: Final = 10  # seconds
 
 MANUFACTURER: Final = "Ecowitt"
 MODEL: Final = "WN90LP"
