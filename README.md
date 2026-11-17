@@ -40,7 +40,7 @@ Settings → Devices & Services → Add Integration → **Ecowitt WN90LP
 - **Host**: IP address of your Modbus TCP gateway
 - **Port**: usually `502`
 - **Unit/Slave ID**: `144` unless you changed it on the device
-- **Scan interval**: default `30` seconds
+- **Scan interval**: default `10` seconds (the device reports new values about every 8.8 s)
 
 All of these (including the gateway IP) can be changed later via the
 integration's **Configure** button.
@@ -91,7 +91,7 @@ no extra Modbus reads involved:
 
 - `0x0165`–`0x0168`, `0x016C` and `0x016E` update roughly every 8.75 s;
   the wind registers (`0x0169`–`0x016B`) update roughly every 2 s. A
-  10–30 s scan interval is a reasonable default.
+  10 s scan interval is a reasonable default.
 - The spec explicitly recommends `0x016C` (0.1 mm resolution) as the rain
   counter register for most cases. `0x016E` is the finer-grained 0.01 mm
   alternative — both are read in the same block request, but `0x016E` is
